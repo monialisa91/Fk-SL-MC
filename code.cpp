@@ -7,8 +7,8 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-//#include "observables.h" // calculation of observables
-//#include "some_functions.h" // helping functions
+#include "observables.h" // calculation of observables
+#include "some_functions.h" // helping functions
 
 using namespace arma;
 using namespace std;
