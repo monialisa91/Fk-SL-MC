@@ -26,9 +26,6 @@ double ipr(mat eigenvectors) {
 	return ipr1 / ipr2;
 }
 
-double correlation() {
-
-}
 
 // Fermi -- Dirac statistics
 double nferm(vec eigenvalues, double beta, double cp) {
@@ -103,11 +100,64 @@ vec ipr_omega(mat eigenvectors, vec eigenvalues, double U, int ms) {
 
 	}
 
-	for(int i = 0; i<ms; i++)  {
-		if(count_t(i) > 0) ipr_t(i) += ipr_tt(i)/count_t(i);
+	for (int i = 0; i < ms; i++) {
+		if (count_t(i) > 0)
+			ipr_t(i) += ipr_tt(i) / count_t(i);
 	}
 
 	return ipr_tt;
 }
 
+double sub_lattice(mat hamiltonian) {
+	int n = hamiltonian.n_rows;
+	int NA = 0;
+	int NB;
+	int index1, index2;
+
+	for (int j = 0; j < n / 2; j++) {
+		for (int i = 0; i < n; i++) {
+			index1 = i + 2 * n * j;
+			index2 = 2 * n - 1 - i + 2 * n * j;
+
+			if (hamiltonian(index1, index1) > 0.0001
+					|| hamiltonian(index2, index2) > 0.0001) {
+				NA++;
+			}
+		}
+	}
+	NB = n - NA;
+
+	return abs(NA - NB) / (NA + NB);
+
+}
+
+double correlation(mat hamiltonian, int L, double U) {
+	int n = hamiltonian.n_rows;
+	double C = 0;
+
+	for (int i = 0; i < n - L; i++) {
+		C += hamiltonian(i, i) * hamiltonian(i + L, i + L);
+	}
+
+	for (int i = 0; i < L; i++) {
+		C += hamiltonian(i, i) * hamiltonian(i + n - L, i + n - L);
+	}
+
+	for (int i = 0; i < n; i++) {
+		C += hamiltonian(i * L, i * L) * hamiltonian(L + i * L - 1, L + i * L - 1);
+	}
+
+	for(int i = 0; i<L-1; i++) {
+		for(int j = 0; j<L; j++) {
+			C += hamiltonian(i+j*L, i+j*L) * hamiltonian(i+j*L+1, i+j*L+1);
+		}
+	}
+
+	C = C/ (U*U*n*n);
+
+	C = -4*(C-0.25);
+
+	return C;
+
+}
 
